@@ -3,6 +3,7 @@ package com.example.xkfeng.coolweather;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -117,6 +118,8 @@ public class MainActivity extends AppCompatActivity {
 
     private SharedPreferences sharedPreferences ;
 
+    private BingPicBroadcastReceiver bingPicBroadcastReceiver;
+
     @SuppressLint("WrongViewCast")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -131,12 +134,18 @@ public class MainActivity extends AppCompatActivity {
         mLocationClient.start();
         setContentView(R.layout.activity_weather);
 
+        Log.i(TAG ,"ONCREATE");
+
         if (Build.VERSION.SDK_INT >= 21) {
             View decorView = getWindow().getDecorView();
             decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN |
                     View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
             getWindow().setStatusBarColor(Color.TRANSPARENT);
         }
+
+        bingPicBroadcastReceiver = new BingPicBroadcastReceiver() ;
+        IntentFilter filter = new IntentFilter("com.example.xkfeng.bingpicreceiver") ;
+        registerReceiver(bingPicBroadcastReceiver , filter) ;
         /*
         申请权限
          */
@@ -241,7 +250,7 @@ public class MainActivity extends AppCompatActivity {
             if (sharedPreferences.getString("LOCATION", null) == null)
             {
                 LOCATION = bdLocation.getProvince().substring(0 ,bdLocation.getProvince().length()-1) ;
-                Log.i(TAG , "THE LOCATION IS " + LOCATION) ;
+              //  Log.i(TAG , "THE LOCATION IS " + LOCATION) ;
                 String address = "http://guolin.tech/api/china" ;
                 //从服务器查询数据
                 queryFromServer(address , "province");
@@ -286,7 +295,7 @@ public class MainActivity extends AppCompatActivity {
      */
     private void showWeatherInfo(Weather weather)
     {
-        Log.i(TAG , "WEATHER DATA IS  " + weather.forecasts.size()) ;
+     //   Log.i(TAG , "WEATHER DATA IS  " + weather.forecasts.size()) ;
         String cityName = weather.basic.cityName ;
         String updateTime = weather.basic.update.updateTime.split(" ")[1] ;
         String degree = weather.now.temperature + " ℃" ;
@@ -460,8 +469,8 @@ public class MainActivity extends AppCompatActivity {
                 boolean result = false ;
                 if ("province".equals(type)){
 
-                    result = JsonUtils.handleProvinceResponse(responseText) ;
-                    Log.i(TAG , "THE LOCATION IS " + LOCATION) ;
+                   // result = JsonUtils.handleProvinceResponse(responseText) ;
+                    Log.i(TAG , "on main response") ;
                     currentProvince = LitePal.where("provinceName = ? " , LOCATION).find(Province.class).get(0) ;
 
                     String address = "http://guolin.tech/api/china/" + currentProvince.getId() ;
@@ -505,11 +514,26 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
-
+    public  class BingPicBroadcastReceiver extends BroadcastReceiver
+    {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String data = intent.getStringExtra("pic" );
+            if (data != null)
+            Glide.with(MainActivity.this).load(data).into(bing_pic_ima);
+            Toast.makeText(MainActivity.this , "必应每日图片更新成功" , Toast.LENGTH_SHORT).show();
+        }
+    }
     @Override
     protected void onDestroy() {
         super.onDestroy();
         if (mLocationClient.isStarted())
         mLocationClient.stop();
+
+        if (bingPicBroadcastReceiver!=null)
+        {
+            unregisterReceiver(bingPicBroadcastReceiver);
+            bingPicBroadcastReceiver=null ;
+        }
     }
 }

@@ -58,7 +58,7 @@ public class JsonUtils {
                 city.setCityName(citys.get(i).getCityName());
                 city.setProvinceId(provinceId);
 
-                Log.i("ChooseAreaFragment" , "CODE IS " + city.getId() + " CODE IS " + city.getCityCode()) ;
+               // Log.i("ChooseAreaFragment" , "CODE IS " + city.getId() + " CODE IS " + city.getCityCode()) ;
                 city.save() ;
             }
             return true ;

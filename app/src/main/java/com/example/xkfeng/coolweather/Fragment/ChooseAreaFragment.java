@@ -1,6 +1,8 @@
 package com.example.xkfeng.coolweather.Fragment;
 
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -109,9 +111,10 @@ public class ChooseAreaFragment extends Fragment {
         lineView2 = (View)view.findViewById(R.id.line_view2) ;
         lineView3 = (View)view.findViewById(R.id.line_view3) ;
 
-        Log.i(TAG , "THE SIZE IS " + dataList.size()) ;
+//        Log.i(TAG , "THE SIZE IS " + dataList.size()) ;
         listView.setAdapter(adapter);
         ;
+//        Log.i(TAG , "ONCREATE VIEW") ;
 
         return  view ;
     }
@@ -205,6 +208,7 @@ public class ChooseAreaFragment extends Fragment {
         });
 
         queryProvince();
+//        Log.i(TAG , "ON ACTIVITY CREATED") ;
     }
 
     /*
@@ -220,9 +224,10 @@ public class ChooseAreaFragment extends Fragment {
         lineView3.setVisibility(View.INVISIBLE);
         cityText.setVisibility(View.INVISIBLE);
         countyText.setVisibility(View.INVISIBLE);
-
         backButton.setVisibility(View.GONE);
+
         provinceList = LitePal.findAll(Province.class) ;
+
 
         if (provinceList.size() > 0)
         {
@@ -237,7 +242,7 @@ public class ChooseAreaFragment extends Fragment {
             listView.setSelection(0);
             currentLevel = LEVEL_PROVINCE ;
         }else {
-
+            Log.i(TAG , "PROVINCE_SIZE " + provinceList.size()) ;
             String address = "http://guolin.tech/api/china" ;
             //从服务器查询数据
             queryFromServer(address , "province");
@@ -264,7 +269,7 @@ public class ChooseAreaFragment extends Fragment {
             dataList1.clear();
             for (City city : cityList)
             {
-                Log.i(TAG ,"City IS EXCUTE" + city.getId() + city.getCityName() + city.getCityCode()) ;
+               // Log.i(TAG ,"City IS EXCUTE" + city.getId() + city.getCityName() + city.getCityCode()) ;
                 dataList1.add(city.getCityName()) ;
             }
             adapter1.notifyDataSetChanged();
@@ -275,7 +280,8 @@ public class ChooseAreaFragment extends Fragment {
         }else {
             int provinceCode = selectedProvince.getProvinceCode() ;
 
-            String address = "http://guolin.tech/api/china/" + selectedProvince.getId() ;
+           // Log.i(TAG , "PROVINCE_CODE " + provinceCode + "\nPROVINCE_ID " + selectedProvince.getId() );
+            String address = "http://guolin.tech/api/china/" + selectedProvince.getProvinceCode() ;
             //从服务器查询数据
             queryFromServer(address , "city");
         }
@@ -357,7 +363,7 @@ public class ChooseAreaFragment extends Fragment {
             Toast.makeText(getContext() , "当前处于没有网络的状态，获取失败" ,Toast.LENGTH_SHORT).show();
             return ;
         }
-        Log.i(TAG , "QUERY FROM SERVICE") ;
+     //   Log.i(TAG , "QUERY FROM SERVICE" + address) ;
         showProgressDialog();
         Utils.sendOkHttpRequest(address, new Callback() {
             @Override
@@ -375,7 +381,7 @@ public class ChooseAreaFragment extends Fragment {
             public void onResponse(Call call, Response response) throws IOException {
 
                 String responseText = response.body().string() ;
-                Log.i(TAG , "THE TEXT IS " + responseText) ;
+              //  Log.i(TAG , "THE TEXT IS " + responseText) ;
                 boolean result = false ;
                 if ("province".equals(type)){
                     result = JsonUtils.handleProvinceResponse(responseText) ;
@@ -405,5 +411,7 @@ public class ChooseAreaFragment extends Fragment {
             }
         });
     }
+
+
 
 }

@@ -10,6 +10,7 @@ import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.example.xkfeng.coolweather.JavaBean.Weather;
 import com.example.xkfeng.coolweather.Utils.JsonUtils;
@@ -89,6 +90,14 @@ public class AutoUpdateService extends Service {
      */
     private void updateBingPic(){
         final String requestBingPic = "http://guolin.tech/api/bing_pic" ;
+ /*
+        对网络状态进行判断
+         */
+        if (!Utils.JudgeNetState(this)){
+            Toast.makeText(this , "没有网络，获取必应每日图片失败" ,Toast.LENGTH_SHORT).show();
+            return ;
+        }
+
         Utils.sendOkHttpRequest(requestBingPic, new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
@@ -102,6 +111,10 @@ public class AutoUpdateService extends Service {
                 SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(AutoUpdateService.this).edit() ;
                 editor.putString("bing_pic" , bingPic) ;
                 editor.apply();
+
+                Intent intent = new Intent("com.example.xkfeng.bingpicreceiver") ;
+                intent.putExtra("pic" , bingPic) ;
+                sendBroadcast(intent);
 
 
             }
