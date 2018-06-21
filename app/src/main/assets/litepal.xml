@@ -1,0 +1,13 @@
+<litepal>
+    <dbname value="cool_weather" />
+
+    <version value="2"  />
+
+    <list>
+        <mapping class="com.example.xkfeng.coolweather.JavaBean.City" />
+        <mapping class="com.example.xkfeng.coolweather.JavaBean.County" />
+        <mapping class="com.example.xkfeng.coolweather.JavaBean.Province" />
+    </list>
+
+
+</litepal>
